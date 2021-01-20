@@ -8,6 +8,8 @@ import org.json.simple.JSONObject;
 public final class Consumer extends Entity {
     protected final long monthlyIncome; // monthly income of a consumer
     protected final Contract contract; // contract signed by a consumer with a distributor
+    protected long budget; // monthly budget of a consumer
+    protected boolean bankrupt; // bankruptcy status of a consumer
 
     /**
      * Class constructor with one parameter.
@@ -16,12 +18,22 @@ public final class Consumer extends Entity {
      */
     public Consumer(final JSONObject consumer) {
         super(consumer); // super constructor call
-        this.monthlyIncome = (long) consumer.get("monthlyIncome");
-        this.contract = new Contract();
+        budget = (long) consumer.get("initialBudget");
+        monthlyIncome = (long) consumer.get("monthlyIncome");
+        bankrupt = false;
+        contract = new Contract();
     }
 
     public long getMonthlyIncome() {
         return monthlyIncome;
+    }
+
+    public long getBudget() {
+        return budget;
+    }
+
+    public boolean isBankrupt() {
+        return bankrupt;
     }
 
     public Contract getContract() {

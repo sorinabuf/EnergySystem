@@ -3,12 +3,13 @@ package consumer;
 import distributor.Distributor;
 import distributor.DistributorsDB;
 
+import game.Utils;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ConsumersDB {
     private final List<Consumer> consumers; // list of all consumers
-    private static final double DEBT = 1.2; // percent of remaining debt
 
     /**
      * Class constructor with one parameter.
@@ -63,7 +64,7 @@ public final class ConsumersDB {
                 preferredDistributor.getClients().add(consumer);
             }
 
-            newBudget = consumer.getBudget() + consumer.monthlyIncome
+            newBudget = consumer.budget + consumer.monthlyIncome
                     - consumer.contract.monthlyRate; // budget of a consumer in a new month
 
             if (consumer.contract.debt == 0) { // verify whether a consumer is not in debt
@@ -71,10 +72,10 @@ public final class ConsumersDB {
                     // if the consumer can not afford to pay the new month, his remaining debt
                     // sum is set
                     newBudget = newBudget + consumer.contract.monthlyRate;
-                    consumer.contract.debt = Math.round(Math.floor(DEBT
-                            * consumer.contract.getMonthlyRate()));
+                    consumer.contract.debt = Math.round(Math.floor(Utils.DEBT
+                            * consumer.contract.monthlyRate));
                 }
-                consumer.setBudget(newBudget); // the new budget is set
+                consumer.budget = newBudget; // the new budget is set
                 // the length of the contract is decremented
                 consumer.contract.length = consumer.contract.length - 1;
             } else {
@@ -83,13 +84,12 @@ public final class ConsumersDB {
                 // will be declared bankrupt
                 if (newBudget <= 0) {
                     newBudget = consumer.getBudget() + consumer.monthlyIncome;
-                    consumer.setBankrupt(true);
-
+                    consumer.bankrupt = true;
                 } else {
                     // the length of the contract is decremented
                     consumer.contract.length = consumer.contract.length - 1;
                 }
-                consumer.setBudget(newBudget); // the new budget is set
+                consumer.budget = newBudget; // the new budget is set
             }
         }
     }

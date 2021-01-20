@@ -3,13 +3,11 @@ package entities;
 import org.json.simple.JSONObject;
 
 /**
- * Main class to be inherited by consumers and distributors.
+ * Main class to be inherited by consumers, distributors and producers.
  */
 @SuppressWarnings("deprecation")
 public class Entity {
-    protected final long id; // the id of an entity
-    private long budget; // the budget of an entity
-    private boolean bankrupt; // the financial status of an entity
+    protected final long id;
 
     /**
      * Class constructor with one parameter.
@@ -17,9 +15,7 @@ public class Entity {
      * @param entity to be added, extracted from input data
      */
     public Entity(final JSONObject entity) {
-        this.id = (long) entity.get("id");
-        this.budget = (long) entity.get("initialBudget");
-        this.bankrupt = false;
+        id = (long) entity.get("id");
     }
 
     /**
@@ -27,37 +23,5 @@ public class Entity {
      */
     public long getId() {
         return id;
-    }
-
-    /**
-     * @return thr budget
-     */
-    public long getBudget() {
-        return budget;
-    }
-
-    /**
-     * Sets the budget with the given parameter.
-     *
-     * @param budget new budget
-     */
-    public void setBudget(long budget) {
-        this.budget = budget;
-    }
-
-    /**
-     * @return the financial status
-     */
-    public boolean isBankrupt() {
-        return bankrupt;
-    }
-
-    /**
-     * Sets the financial status with the given parameter.
-     *
-     * @param bankrupt new financial status
-     */
-    public void setBankrupt(boolean bankrupt) {
-        this.bankrupt = bankrupt;
     }
 }

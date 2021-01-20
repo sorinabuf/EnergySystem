@@ -9,7 +9,7 @@ public final class Contract {
     protected long debt; // remaining sum to be paid of a previous month
 
     public Contract() {
-        this.debt = 0; // initially, debt is non-existent
+        debt = 0; // initially, debt is non-existent
     }
 
     /**

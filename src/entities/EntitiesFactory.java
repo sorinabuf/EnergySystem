@@ -6,15 +6,18 @@ import distributor.Distributor;
 
 import org.json.simple.JSONObject;
 
+import producer.Producer;
+
 /**
- * Factory class designed using Singleton pattern that creates all the instances of the project.
+ * Factory class designed using Singleton pattern that creates all the instances of the project
+ * responsible for entities creation.
  */
 @SuppressWarnings("deprecation")
 public final class EntitiesFactory {
     private static EntitiesFactory factory = null; // initially null private instance
 
     /**
-     * Return a new factory instance.
+     * Returns a new factory instance.
      *
      * @return the instance will be created at first call of getInstance()
      */
@@ -52,7 +55,17 @@ public final class EntitiesFactory {
     }
 
     /**
-     * Create method that return an entity specific to the type given as parameter.
+     * Private method particular to the factory class that returns a producer object.
+     *
+     * @param producer to be created given through input data
+     * @return a new producer
+     */
+    private Entity createProducer(final JSONObject producer) {
+        return new Producer(producer);
+    }
+
+    /**
+     * Create method that returns an entity specific to the type given as parameter.
      *
      * @param type   of the new entity object
      * @param entity to be created given through input data
@@ -62,6 +75,7 @@ public final class EntitiesFactory {
         return switch (type) {
             case CONSUMER -> createConsumer(entity);
             case DISTRIBUTOR -> createDistributor(entity);
+            case PRODUCER -> createProducer(entity);
         };
     }
 }
