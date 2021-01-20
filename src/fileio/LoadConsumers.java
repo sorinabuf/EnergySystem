@@ -21,7 +21,7 @@ public final class LoadConsumers {
      * Class constructor with two parameters.
      *
      * @param initialData data extracted from input file
-     * @param factory class responsible with creating entities
+     * @param factory class responsible of creating entities
      */
     public LoadConsumers(final JSONObject initialData, final EntitiesFactory factory) {
         // list of consumers given through input data
