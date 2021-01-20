@@ -4,13 +4,24 @@ import consumer.Consumer;
 
 import entities.Entity;
 
+import game.Utils;
+
 import org.json.simple.JSONObject;
+
+import producer.Producer;
+
+import strategies.EnergyChoiceStrategyType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
+/**
+ * Observer of the producers' changes.
+ */
 @SuppressWarnings("deprecation")
-public final class Distributor extends Entity {
+public final class Distributor extends Entity implements Observer {
     protected final long contractLength; // the length of the contract
     protected long infrastructureCost; // the infrastructure cost
     protected long productionCost; // the production cost
@@ -18,20 +29,12 @@ public final class Distributor extends Entity {
     protected long totalCost; // total monthly costs of a distributor
     protected long monthlyRate; // monthly rate set for clients by a distributor
     protected List<Consumer> clients; // list of clients
-    protected static final double PROFIT = 0.2; // the percent of the profit
-
-    /**
-     * Returns the initial monthly rate of a distributor with no clients.
-     *
-     * @param distributor for whom the rate is calculated
-     * @return the first rate to be paid by the distributor's clients
-     */
-    private long calculateInitialMonthlyRate(final JSONObject distributor) {
-        long newInfrastructureCost = (long) (distributor).get("initialInfrastructureCost");
-        long newProductionCost = (long) (distributor).get("initialProductionCost");
-        long profit = Math.round(Math.floor(PROFIT * newProductionCost)); // the profit of the month
-        return newInfrastructureCost + newProductionCost + profit; // the initial monthly rate
-    }
+    protected long budget; // monthly budget of a distributor
+    protected boolean bankrupt; // bankruptcy status of a distributor
+    protected long energyNeededKW; // energy needed to be supplied
+    protected EnergyChoiceStrategyType producerStrategy; // strategy used for energy choice
+    protected List<Producer> energyProducers; // current list of producers supplying energy
+    protected boolean hasChanged; // modifies when the energy supplied of a producer changes
 
     /**
      * Class constructor with one parameter.
@@ -40,22 +43,67 @@ public final class Distributor extends Entity {
      */
     public Distributor(final JSONObject distributor) {
         super(distributor); // super constructor call
-        this.contractLength = (long) distributor.get("contractLength");
-        this.infrastructureCost = (long) distributor.get("initialInfrastructureCost");
-        this.productionCost = (long) distributor.get("initialProductionCost");
-        this.monthlyRate = calculateInitialMonthlyRate(distributor);
-        this.clients = new ArrayList<>();
+        bankrupt = false;
+        energyNeededKW = (long) distributor.get("energyNeededKW");
+        producerStrategy = EnergyChoiceStrategyType.valueOf((String)
+                distributor.get("producerStrategy"));
+        budget = (long) distributor.get("initialBudget");
+        contractLength = (long) distributor.get("contractLength");
+        infrastructureCost = (long) distributor.get("initialInfrastructureCost");
+        clients = new ArrayList<>();
+        hasChanged = false;
     }
 
     /**
-     * Updates the infrastructure and production costs of a distributor given through a monthly
-     * update.
+     * Calculates the production cost based on the list of suppliers.
+     *
+     * @return the production cost of a distributor
+     */
+    public long calculateProductionCost() {
+        long newProductionCost = 0;
+        for (Producer producer : energyProducers) {
+            newProductionCost += producer.getEnergyPerDistributor() * producer.getPriceKW();
+        }
+        newProductionCost = Math.round(Math.floor((double) newProductionCost / Utils.COST));
+        return newProductionCost;
+    }
+
+    /**
+     * Sets the initial cost of a contract signed between the current distributor and potential
+     * client
+     */
+    public void calculateInitialMonthlyRate() {
+        productionCost = calculateProductionCost(); // sets the production cost
+        long profit = Math.round(Math.floor(Utils.PROFIT * productionCost)); // profit of the month
+        monthlyRate = infrastructureCost + productionCost + profit;
+    }
+
+    /**
+     * Updates the infrastructure costs of a distributor given through a monthly update.
      *
      * @param distributor to be updated, extracted from input data
      */
     public void updateDistributor(final JSONObject distributor) {
         infrastructureCost = (long) distributor.get("infrastructureCost");
-        productionCost = (long) distributor.get("productionCost");
+    }
+
+    /**
+     * Notifies the observer that a producer suffered changes and that he may be affected. Sets
+     * the change flag on if the observer was affected by the updates.
+     *
+     * @param o observable object
+     * @param producerId id of the producer that suffered changes
+     */
+    @Override
+    public void update(Observable o, Object producerId) {
+        for (Producer producer : energyProducers) {
+            // verifies whether the distributor is supplied by the modified producer and sets the
+            // flag accordingly
+            if (producer.getId() == (long) producerId) {
+                hasChanged = true;
+                break;
+            }
+        }
     }
 
     public long getContractLength() {
@@ -66,15 +114,35 @@ public final class Distributor extends Entity {
         return infrastructureCost;
     }
 
-    public long getProductionCost() {
-        return productionCost;
-    }
-
     public long getMonthlyRate() {
         return monthlyRate;
     }
 
+    public long getBudget() {
+        return budget;
+    }
+
+    public boolean isBankrupt() {
+        return bankrupt;
+    }
+
+    public long getEnergyNeededKW() {
+        return energyNeededKW;
+    }
+
+    public EnergyChoiceStrategyType getProducerStrategy() {
+        return producerStrategy;
+    }
+
     public List<Consumer> getClients() {
         return clients;
+    }
+
+    public boolean isHasChanged() {
+        return hasChanged;
+    }
+
+    public List<Producer> getEnergyProducers() {
+        return energyProducers;
     }
 }
