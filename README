@@ -1,0 +1,187 @@
+********************************************************************************
+
+                      PROJECT - PHASE 2 - ENERGY SYSTEM
+
+                    Object-Oriented Programming 2020-2021
+
+                         BUF SORINA ANAMARIA - 321CA
+
+
+********************************************************************************
+
+    This final phase of the project continued the real-life simulation
+previously undertaken, that consisted in creating a consumer-distributor
+relationship, directly influenced by their economic interaction in the context
+of an existing signed contract between the two entities based on certain
+financial criteria. The novelty brought in the game is represented by the
+introduction of a third party, the producers, responsible for supplying the
+distributors with the quantity of needed energy, creating a direct chain of
+relations and new functionalities between the three entities.
+
+    ## IMPLEMENTATION
+
+    The simulation was implemented using the following packages:
+
+     • consumer → contains three classes: Consumer, ConsumersDB, Contract, that
+     directly simulates a database of consumers defined by their particular
+     attributes and their relationship with distributors.
+
+            ▶ Consumer → an inheritor of the Entity class found in the entity
+        package that models the main fields of a consumer player in the
+        simulation game: budget, monthly income, bankruptcy status and the
+        contract signed with a distributor;
+            ▶ Contract → class responsible for generating a direct connection
+        between a consumer and distributor that defines the main characteristics
+        of a signed contract on the behalf of the consumer, including the
+        length of the contract, monthly fee and debt; the method updateContract
+        is essential as it modifies the current state of the contract of a
+        consumer after it reached the end of availability;
+            ▶ ConsumersDB → encapsulates the details of all consumers and keeps
+        track of all changes that appear in the state of consumers' contract;
+        the method setInitialMonth is responsible for setting up the
+        characteristics of the first month of the game independent of any new
+        changes and dependant only on the initial data collected from input; the
+        main function is the one that updates the state of the fields of all
+        consumers after each turn of the game, creating new contracts for the
+        ones that expired, paying the taxes of the consumers, modifying their
+        budgets based on the possibility of existing debts and setting up the
+        bankruptcy status of the entities.
+
+     • distributor → contains two classes: Distributor, DistributorsDB, that
+     simulates a database of distributors defined by their specific fields.
+
+            ▶ Distributor → an inheritor of the Entity class found in the
+        entity package that models the main fields of a distributor player
+        in relation with both consumers and producers; the method
+        calculateInitialMonthlyRate has a part in setting up the initial fields
+        of a distributor in month 0, while function calculateProductionCost is
+        responsible for updating costs related to the list of producers;
+            ▶ DistributorsDB → encapsulates the details of all distributors and
+        takes care to monthly update the characteristics of these entities using
+        its update method that includes modifying the budgets, total costs and
+        list of clients along with current bankrupt status; in support to this
+        action, the functions setInitialMonth and calculateMonthlyRate play an
+        important role in managing the updates in a logical order and efficient
+        way: firstly, the new costs are calculated, the monthly rates paid by
+        clients are added, bankrupt status is updated and bankrupt clients are
+        removed from client list; in addition to this phase of the project, at
+        the end of a month, the method updateEnergySources takes care of the
+        list of energy suppliers based on their respective monthly changes.
+
+     • producer → contains two classes: Producer, ProducersDB, that simulates a
+     database of all producers defined by their specific characteristics.
+
+            ▶ Producer → an inheritor of the Entity class found in the entity
+        package that models the main fields of a producer player in the
+        simulation game regarding the attributes of the energy offered and the
+        lists of supplied distributors;
+            ▶ ProducersDB → encapsulates the details of all producers and
+        monitors the monthly updates regarding the prices received from the game
+        and consequently the lists of provided distributors.
+
+     • entities → this package manages the creation and general simulation of
+     players, gathering all the parties involved in the game.
+
+            ▶ EntitiesFactory → models the Factory pattern using Singleton, used
+        in creating all the entities from the simulation based on a create
+        method that receives as parameters the entity type defined in the enum
+        class of the package and a json objects parsed from the input file;
+            ▶ Entity → super class for the particular entities used in the game,
+        Consumer, Producer and Distributor, holding as common field the id.
+
+     • fileio → this package is responsible with the maneuvering of input/output
+     files by parsing data to and from json objects;
+
+            ▶ LoadConsumers → implements a list of all initial consumers given
+        though input, using factory class and the json initial data object;
+            ▶ LoadDistributors → implements a list of all distributors given
+        though input using factory class and the json initial data object;
+            ▶ LoadProducers → implements a list of all producers given though
+        input using factory class and the json initial data object;
+            ▶ Writer → primarily used for writing in the output file the last
+        state of the consumers, distributors, producers and contracts following
+        a pre-known output structure.
+
+     • game → main part of the programme that keeps track of the flow of the
+     simulation by performing the main actions, by gathering all the databases
+     and methods needed in order to simulate the current game.
+
+            ▶ Game → super abstract class of the simulation responsible for
+        managing the main databases put into use, holding an abstract method
+        responsible for controlling the flow of the programme;
+            ▶ InitialMonth → an inheritor of the Game class that overrides the
+        playGame method for updating consumers, distributors and producers
+        according to the rules of the first month of the game;
+            ▶ TurnMonth → an inheritor of the Game class that overrides the
+        playGame method, used for reading the monthly updates received each turn
+        of the simulation and, consequently, for updating the entities still
+        found in the game accordingly.
+
+     • strategies → the purpose of this package is to implement the choice
+     producers strategies, later used by distributors in setting up their energy
+     supply scheme.
+
+            ▶ EnergyChoiceStrategy → interface implemented by the three
+        strategies, having the method getEnergyProducers that returns a sorted
+        list of producers based on a strategy's criteria that fulfills a
+        distributor's energy need;
+            ▶ EnergyChoiceStrategyFactory → models the Factory pattern using
+        Singleton, used in creating all the strategies from the simulation based
+        on a create method that receives as parameters the strategy type defined
+        in the enum class of the package, the database of all producers that are
+        about to get sorted and the distributor for which the strategy is
+        performed;
+            ▶ GreenEnergyChoiceStrategy → implements the interface of the
+        package and its main method, sorting the producers by green strategy
+        criteria and returning the new list of suppliers for the distributor;
+            ▶ PriceEnergyChoiceStrategy → implements the interface of the
+        package and its main method, sorting the producers by price strategy
+        criteria and returning the new list of suppliers for the distributor;
+            ▶ QuantityEnergyChoiceStrategy → implements the interface of the
+        package and its main method, sorting the producers by quantity strategy
+        criteria and returning the new list of suppliers for the distributor.
+
+     ## FLOW
+
+        The whole flow of the program is outlined in the structure of the Main
+     class. Firstly, the number of turns, initial data and monthly updates
+     subsections are extracted from the input file. The consumers, producers and
+     distributors are loaded using the factory instance and json data object
+     and afterwards moved to their respective databases. After the initial
+     month is set, for each turn of the game the updates are extracted and the
+     entities are updated. In the end, the resulted lists are displayed in
+     the output file given in the arguments list.
+
+     ## DESIGN PATTERNS
+
+        Besides the Factory and Singleton patterns, previously explained, used
+     for creating the main instances of the simulation (entities and strategies)
+     ,this phase of the project exploited two other patterns with relevant
+     purposes in the context of this type of game as following:
+
+        * Observer Pattern
+
+        Observer pattern is used when there is one-to-many relationship between
+     objects such as if one object is modified, its dependent objects are to be
+     notified automatically, falling under behavioral pattern category. In this
+     game, the observable object was represented by the database of producers,
+     while the observers, the distributors, implemented the respective Java
+     interface. When a producer is modified, it notifies its observers, who
+     update their change status flag if one of their energy suppliers suffered
+     any modifications. In this way, at the end of a round, based on the
+     notifying flag, a distributor may update his list of producers accordingly.
+
+        * Strategy Pattern
+
+        In Strategy pattern, we create objects which represent various
+     strategies and a context object whose behavior varies as per its strategy
+     object. The strategy object changes the executing algorithm of the context
+     object. In this scenario, the objects affected by the strategies,
+     represented by the choice producers strategies developed in the strategies
+     package, are the distributors, who adapt their list of suppliers according
+     to both their energy need and chosen strategy scheme.
+
+     For more details related to effective implementation and management of
+exception cases, I added relevant comments along the code.
+
+********************************************************************************
