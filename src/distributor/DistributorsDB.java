@@ -181,14 +181,14 @@ public final class DistributorsDB {
      */
     public void initiateEnergySources(final EnergyChoiceStrategyFactory choiceStrategyFactory,
                                       final ProducersDB producersDatabase) {
-        for (Distributor distributor : distributors) {
-            // creates the initial list of producers chosen through the distributor's strategy
+        // creates the initial list of producers chosen through the distributor's strategy
+        // adds the distributor to the observers list of the producers' database
+        distributors.forEach(distributor -> {
             distributor.energyProducers =
                     choiceStrategyFactory.createStrategy(distributor.getProducerStrategy(),
                             producersDatabase, distributor).getEnergyProducers();
-            // adds the distributor to the observers list of the producers' database
             producersDatabase.addObserver(distributor);
-        }
+        });
     }
 
     public List<Distributor> getDistributors() {

@@ -5,9 +5,8 @@ import distributor.Distributor;
 import producer.Producer;
 import producer.ProducersDB;
 
-import strategies.comparators.QuantityEnergyChoiceSort;
-
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public final class QuantityEnergyChoiceStrategy implements EnergyChoiceStrategy {
@@ -38,9 +37,9 @@ public final class QuantityEnergyChoiceStrategy implements EnergyChoiceStrategy 
         List<Producer> energyProducers = new ArrayList<>();
         List<Producer> sortedProducers = new ArrayList<>(producersDatabase.getProducers());
 
-        QuantityEnergyChoiceSort sortMethod = new QuantityEnergyChoiceSort();
-        // sorts database of producers using quantity strategy
-        sortedProducers.sort(sortMethod);
+        // sorts the producers by the biggest amount of energy offered monthly and by ascending ids
+        sortedProducers.sort(Comparator.comparing(Producer::getEnergyPerDistributor,
+                Comparator.reverseOrder()).thenComparing(Producer::getId));
 
         long distributorEnergy = distributor.getEnergyNeededKW();
         // removes producers who reached the maximum number of supplied distributors for the

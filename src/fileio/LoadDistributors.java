@@ -2,7 +2,6 @@ package fileio;
 
 import distributor.Distributor;
 
-import entities.Entity;
 import entities.EntityType;
 import entities.EntitiesFactory;
 
@@ -11,6 +10,7 @@ import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @SuppressWarnings("deprecation")
 public final class LoadDistributors {
@@ -26,11 +26,11 @@ public final class LoadDistributors {
     public LoadDistributors(final JSONObject initialData, final EntitiesFactory factory) {
         // list of distributors given through input data
         JSONArray distributors = (JSONArray) initialData.get("distributors");
-        for (Object distributor : distributors) {
-            Entity newDistributor = factory.createEntity(EntityType.DISTRIBUTOR,
-                    (JSONObject) distributor);
-            loadedDistributors.add((Distributor) newDistributor);
-        }
+        IntStream.range(0, distributors.size()).mapToObj(distributors::get)
+                .map(distributor -> factory.createEntity(EntityType.DISTRIBUTOR,
+                (JSONObject) distributor))
+                .map(newDistributor -> (Distributor) newDistributor)
+                .forEach(loadedDistributors::add);
     }
 
     public List<Distributor> getLoadedDistributors() {

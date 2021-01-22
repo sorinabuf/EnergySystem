@@ -2,7 +2,6 @@ package fileio;
 
 import consumer.Consumer;
 
-import entities.Entity;
 import entities.EntityType;
 import entities.EntitiesFactory;
 
@@ -11,6 +10,7 @@ import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @SuppressWarnings("deprecation")
 public final class LoadConsumers {
@@ -26,10 +26,9 @@ public final class LoadConsumers {
     public LoadConsumers(final JSONObject initialData, final EntitiesFactory factory) {
         // list of consumers given through input data
         JSONArray consumers = (JSONArray) initialData.get("consumers");
-        for (Object consumer : consumers) {
-            Entity newConsumer = factory.createEntity(EntityType.CONSUMER, (JSONObject) consumer);
-            loadedConsumers.add((Consumer) newConsumer);
-        }
+        IntStream.range(0, consumers.size()).mapToObj(consumers::get)
+                .map(consumer -> factory.createEntity(EntityType.CONSUMER, (JSONObject) consumer))
+                .map(newConsumer -> (Consumer) newConsumer).forEach(loadedConsumers::add);
     }
 
     public List<Consumer> getLoadedConsumers() {

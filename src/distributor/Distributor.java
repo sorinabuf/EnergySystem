@@ -60,10 +60,8 @@ public final class Distributor extends Entity implements Observer {
      * @return the production cost of a distributor
      */
     public long calculateProductionCost() {
-        long newProductionCost = 0;
-        for (Producer producer : energyProducers) {
-            newProductionCost += producer.getEnergyPerDistributor() * producer.getPriceKW();
-        }
+        long newProductionCost = energyProducers.stream().mapToLong(producer ->
+                (long) (producer.getEnergyPerDistributor() * producer.getPriceKW())).sum();
         newProductionCost = Math.round(Math.floor((double) newProductionCost / Utils.COST));
         return newProductionCost;
     }
@@ -91,7 +89,7 @@ public final class Distributor extends Entity implements Observer {
      * Notifies the observer that a producer suffered changes and that he may be affected. Sets
      * the change flag on if the observer was affected by the updates.
      *
-     * @param o observable object
+     * @param o          observable object
      * @param producerId id of the producer that suffered changes
      */
     @Override

@@ -44,10 +44,10 @@ public final class ProducersDB extends Observable {
      * @param currentMonth current turn of the game
      */
     public void updateMonthlyDistributorsLists(final int currentMonth) {
-        for (Producer producer : producers) {
+        producers.forEach(producer -> {
             List<Distributor> currentDistributors = new ArrayList<>(producer.currentDistributors);
             producer.allDistributors.put(currentMonth, currentDistributors);
-        }
+        });
     }
 
     public List<Producer> getProducers() {
